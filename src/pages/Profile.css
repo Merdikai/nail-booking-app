@@ -1,0 +1,340 @@
+/* =========================================== */
+/* PROFILE.CSS */
+/* =========================================== */
+
+.profile-page {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #faf5ff 0%, #fdf2f8 50%, #fefce8 100%);
+  padding: 2rem 0;
+}
+
+.profile-page h2 {
+  background: linear-gradient(135deg, #ec4899, #a855f7);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 800;
+  font-size: 2rem;
+  margin-bottom: 2rem;
+}
+
+/* =========================================== */
+/* PROFILE INFO CARD */
+/* =========================================== */
+.profile-info-card {
+  background: white;
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: 0 8px 30px rgba(236, 72, 153, 0.08);
+  border: 1px solid rgba(236, 72, 153, 0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: fadeInUp 0.5s ease;
+}
+
+.profile-info-card:hover {
+  box-shadow: 0 15px 40px rgba(236, 72, 153, 0.15);
+  transform: translateY(-3px);
+}
+
+/* =========================================== */
+/* AVATAR */
+/* =========================================== */
+.profile-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ec4899, #a855f7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+  box-shadow: 0 8px 25px rgba(236, 72, 153, 0.3);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+
+.profile-avatar:hover {
+  transform: scale(1.1);
+  box-shadow: 0 12px 35px rgba(236, 72, 153, 0.5);
+}
+
+.profile-avatar span {
+  color: white;
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.profile-info-card h5 {
+  color: #1f2937;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.profile-info-card .text-muted {
+  color: #6b7280 !important;
+  margin-bottom: 0.25rem;
+}
+
+/* =========================================== */
+/* LOYALTY CARD */
+/* =========================================== */
+.loyalty-card {
+  background: white;
+  border-radius: 20px;
+  padding: 1.5rem;
+  box-shadow: 0 8px 30px rgba(236, 72, 153, 0.08);
+  border: 1px solid rgba(236, 72, 153, 0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: fadeInUp 0.5s ease 0.1s;
+}
+
+.loyalty-card:hover {
+  box-shadow: 0 15px 40px rgba(236, 72, 153, 0.15);
+  transform: translateY(-3px);
+}
+
+.loyalty-card h5 {
+  color: #1f2937;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.loyalty-card p {
+  color: #4b5563;
+  margin-bottom: 0.5rem;
+}
+
+.loyalty-card strong {
+  color: #ec4899;
+}
+
+/* =========================================== */
+/* LOYALTY PROGRESS BAR */
+/* =========================================== */
+.loyalty-progress {
+  height: 12px;
+  border-radius: 6px;
+  background: #f3f4f6;
+  overflow: hidden;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+}
+
+.loyalty-progress .progress-bar {
+  height: 100%;
+  background: linear-gradient(135deg, #ec4899, #a855f7);
+  border-radius: 6px;
+  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  min-width: 0;
+}
+
+.loyalty-progress .progress-bar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  animation: progressShine 2s ease-in-out infinite;
+}
+
+@keyframes progressShine {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* =========================================== */
+/* LOYALTY REWARD */
+/* =========================================== */
+.loyalty-reward {
+  background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+  color: #065f46;
+  border: none;
+  border-radius: 14px;
+  padding: 1rem;
+  font-weight: 600;
+  text-align: center;
+  animation: scaleIn 0.5s ease;
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2);
+}
+
+.loyalty-info {
+  color: #6b7280;
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
+}
+
+/* =========================================== */
+/* BOOKINGS CARD */
+/* =========================================== */
+.bookings-card {
+  background: white;
+  border-radius: 20px;
+  padding: 1.5rem;
+  box-shadow: 0 8px 30px rgba(236, 72, 153, 0.08);
+  border: 1px solid rgba(236, 72, 153, 0.1);
+  animation: fadeInUp 0.5s ease 0.2s;
+}
+
+.bookings-card h5 {
+  color: #1f2937;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #f3f4f6;
+}
+
+/* =========================================== */
+/* INDIVIDUAL BOOKING ITEM */
+/* =========================================== */
+.booking-item {
+  border: 1px solid #f3f4f6;
+  border-radius: 14px;
+  margin-bottom: 0.75rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: #fafafa;
+  overflow: hidden;
+}
+
+.booking-item:hover {
+  border-color: rgba(236, 72, 153, 0.2);
+  box-shadow: 0 6px 20px rgba(236, 72, 153, 0.08);
+  transform: translateX(5px);
+  background: white;
+}
+
+.booking-item .card-body {
+  padding: 1rem 1.25rem;
+}
+
+.booking-item h6 {
+  color: #1f2937;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.booking-item .text-muted {
+  color: #6b7280 !important;
+}
+
+/* =========================================== */
+/* BOOKING STATUS BADGES */
+/* =========================================== */
+.booking-item .badge {
+  padding: 0.4em 0.8em;
+  font-weight: 500;
+  font-size: 0.8rem;
+  border-radius: 8px;
+  white-space: nowrap;
+}
+
+.badge-confirmed {
+  background: #d1fae5 !important;
+  color: #065f46 !important;
+}
+
+.badge-pending {
+  background: #fef3c7 !important;
+  color: #92400e !important;
+}
+
+.badge-completed {
+  background: #e0e7ff !important;
+  color: #3730a3 !important;
+}
+
+.badge-cancelled {
+  background: #fce7f3 !important;
+  color: #9d174d !important;
+}
+
+.badge-default {
+  background: #f3f4f6 !important;
+  color: #4b5563 !important;
+}
+
+/* =========================================== */
+/* EMPTY STATE */
+/* =========================================== */
+.bookings-empty {
+  text-align: center;
+  padding: 2rem;
+  color: #9ca3af;
+}
+
+.bookings-empty .btn-pink {
+  background: linear-gradient(135deg, #ec4899, #a855f7);
+  color: white;
+  border: none;
+  border-radius: 9999px;
+  padding: 0.6rem 1.5rem;
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-block;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 15px rgba(236, 72, 153, 0.3);
+}
+
+.bookings-empty .btn-pink:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(236, 72, 153, 0.5);
+}
+
+/* =========================================== */
+/* LOADING SPINNER */
+/* =========================================== */
+.profile-spinner {
+  width: 3rem;
+  height: 3rem;
+  border-width: 0.25rem;
+  color: #ec4899 !important;
+}
+
+/* =========================================== */
+/* ANIMATIONS */
+/* =========================================== */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* =========================================== */
+/* RESPONSIVE */
+/* =========================================== */
+@media (max-width: 992px) {
+  .profile-page {
+    padding: 1.5rem 0;
+  }
+  
+  .profile-info-card,
+  .loyalty-card,
+  .bookings-card {
+    margin-bottom: 1rem;
+  }
+  
+  .booking-item .card-body {
+    padding: 0.75rem 1rem;
+  }
+  
+  .booking-item h6 {
+    font-size: 0.85rem;
+  }
+}

@@ -1,0 +1,288 @@
+/* =========================================== */
+/* DESIGNS.CSS */
+/* =========================================== */
+
+.designs-page {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #fefce8 0%, #fdf2f8 50%, #faf5ff 100%);
+  padding: 2rem 0;
+}
+
+/* =========================================== */
+/* HEADER */
+/* =========================================== */
+.designs-header {
+  text-align: left;
+}
+
+.designs-header h2 {
+  font-size: 2.5rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #ec4899, #a855f7);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 0.5rem;
+}
+
+.designs-header p {
+  color: #6b7280;
+  font-size: 1.1rem;
+}
+
+/* =========================================== */
+/* TRENDING SECTION */
+/* =========================================== */
+.trending-section h4 {
+  color: #1f2937;
+  font-weight: 700;
+  font-size: 1.3rem;
+  margin-bottom: 1rem;
+}
+
+.trending-card {
+  background: white;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid rgba(236, 72, 153, 0.1);
+  animation: fadeInUp 0.5s ease;
+}
+
+.trending-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(236, 72, 153, 0.15);
+  border-color: rgba(236, 72, 153, 0.3);
+}
+
+.trending-card img {
+  border-radius: 50%;
+  border: 3px solid #ec4899;
+  transition: transform 0.3s ease;
+}
+
+.trending-card:hover img {
+  transform: scale(1.1);
+}
+
+.trending-card .fw-bold {
+  color: #1f2937;
+  font-size: 0.95rem;
+}
+
+.trending-card small {
+  color: #6b7280;
+  font-size: 0.8rem;
+}
+
+/* =========================================== */
+/* DESIGN CARDS GRID */
+/* =========================================== */
+.design-card {
+  border: none !important;
+  border-radius: 20px;
+  overflow: hidden;
+  background: white;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  animation: fadeInUp 0.6s ease;
+  height: 100%;
+}
+
+.design-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 25px 50px rgba(236, 72, 153, 0.2);
+}
+
+.design-card .card-img-top {
+  border-radius: 20px 20px 0 0;
+  transition: transform 0.5s ease;
+}
+
+.design-card:hover .card-img-top {
+  transform: scale(1.08);
+}
+
+.design-card .card-body {
+  padding: 1.25rem;
+}
+
+.design-card .card-body h5 {
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+}
+
+.design-card .card-body .text-muted {
+  color: #6b7280 !important;
+}
+
+/* =========================================== */
+/* PRICE BADGE */
+/* =========================================== */
+.price-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: linear-gradient(135deg, #ec4899, #a855f7);
+  color: white;
+  padding: 0.4rem 0.9rem;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  box-shadow: 0 4px 15px rgba(236, 72, 153, 0.3);
+  z-index: 5;
+  letter-spacing: 0.3px;
+}
+
+/* =========================================== */
+/* LIKE BUTTON */
+/* =========================================== */
+.like-btn {
+  background: linear-gradient(135deg, #ec4899, #a855f7);
+  color: white;
+  border: none;
+  border-radius: 9999px;
+  padding: 0.55rem 1.1rem;
+  font-weight: 500;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.like-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 20px rgba(236, 72, 153, 0.4);
+}
+
+.like-btn:active {
+  transform: scale(0.95);
+}
+
+/* =========================================== */
+/* BOOK BUTTON */
+/* =========================================== */
+.book-btn {
+  border: 2px solid #374151;
+  color: #374151;
+  background: transparent;
+  border-radius: 9999px;
+  padding: 0.55rem 1.1rem;
+  font-weight: 500;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.book-btn:hover {
+  background: #374151;
+  color: white;
+  transform: scale(1.05);
+  box-shadow: 0 6px 20px rgba(55, 65, 81, 0.3);
+}
+
+.book-btn:active {
+  transform: scale(0.95);
+}
+
+/* =========================================== */
+/* LOADING */
+/* =========================================== */
+.designs-loading {
+  width: 3rem;
+  height: 3rem;
+  border-width: 0.25rem;
+  color: #ec4899 !important;
+}
+
+/* =========================================== */
+/* EMPTY STATE */
+/* =========================================== */
+.designs-empty {
+  font-size: 4rem;
+  animation: bounce 2s ease-in-out infinite;
+}
+
+.designs-empty + h3 {
+  color: #374151;
+  font-weight: 700;
+  margin-top: 1rem;
+}
+
+.designs-empty ~ p {
+  color: #9ca3af;
+}
+
+/* =========================================== */
+/* ALERT */
+/* =========================================== */
+.designs-alert {
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  color: #92400e;
+  border: none;
+  border-radius: 12px;
+  padding: 0.9rem 1.2rem;
+  font-weight: 500;
+  font-size: 0.9rem;
+  box-shadow: 0 4px 12px rgba(251, 191, 36, 0.15);
+}
+
+/* =========================================== */
+/* ANIMATIONS */
+/* =========================================== */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+/* =========================================== */
+/* RESPONSIVE */
+/* =========================================== */
+@media (max-width: 992px) {
+  .design-card .card-img-top {
+    height: 180px !important;
+  }
+  
+  .designs-header h2 {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .designs-page {
+    padding: 1rem 0;
+  }
+  
+  .design-card {
+    margin-bottom: 1rem;
+  }
+  
+  .trending-card {
+    margin-bottom: 0.75rem;
+  }
+  
+  .designs-header h2 {
+    font-size: 1.75rem;
+  }
+
+  .design-card .card-img-top {
+    height: 200px !important;
+  }
+}
+
+@media (max-width: 576px) {
+  .design-card .card-img-top {
+    height: 250px !important;
+  }
+}
