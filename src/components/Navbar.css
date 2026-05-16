@@ -212,7 +212,6 @@
   overflow: hidden;
 }
 
-/* Background hover layer */
 .nav-item-bg {
   position: absolute;
   inset: 4px;
@@ -716,6 +715,7 @@
   }
 
   .nav-menu {
+    display: block;
     position: fixed;
     top: 0;
     right: -100%;

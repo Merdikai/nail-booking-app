@@ -20,14 +20,19 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Close on outside click
+  // Close on outside click – FIXED CLASS NAMES
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (!(e.target as HTMLElement).closest(".nav-dropdown")) {
+      const target = e.target as HTMLElement;
+      // Only close dropdown if click outside .nav-dropdown
+      if (!target.closest(".nav-dropdown")) {
         setDropdownOpen(false);
       }
-      if (!(e.target as HTMLElement).closest(".nav-links-container") &&
-          !(e.target as HTMLElement).closest(".nav-mobile-toggle")) {
+      // Only close mobile menu if click outside .nav-menu and .nav-toggle
+      if (
+        !target.closest(".nav-menu") &&
+        !target.closest(".nav-toggle")
+      ) {
         setIsOpen(false);
       }
     };
