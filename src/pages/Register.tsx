@@ -44,7 +44,7 @@ export default function Register() {
     }
 
     try {
-      // 1. Sign up user with Supabase Auth (triggers auto-profile creation)
+      // 1. Sign up user with Supabase Auth (trigger creates basic profile)
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password,
@@ -55,7 +55,12 @@ export default function Register() {
       const user = authData.user;
       if (!user) throw new Error("No user returned from auth");
 
-      // 2. Update the auto-created profile with additional info
+      console.log("User created:", user.id);
+
+      // 2. Wait a moment for the trigger to create the profile
+      await new Promise(resolve => setTimeout(resolve, 1500));
+
+      // 3. Update the auto-created profile with user details
       const { error: updateError } = await supabase
         .from("profiles")
         .update({
@@ -66,11 +71,10 @@ export default function Register() {
         })
         .eq("id", user.id);
 
-      // If update fails (maybe trigger didn't create profile), try inserting
+      // 4. If update fails (trigger didn't create profile), insert directly
       if (updateError) {
-        console.log("Update failed, trying insert instead...");
+        console.log("Update failed, trying direct insert...");
         
-        // Try direct insert as fallback
         const { error: insertError } = await supabase.from("profiles").insert([
           {
             id: user.id,
@@ -83,18 +87,21 @@ export default function Register() {
         ]);
 
         if (insertError) {
-          console.error("Both update and insert failed:", insertError);
-          throw new Error("Failed to save profile. Please try again.");
+          console.error("Insert failed:", insertError);
+          throw new Error("Failed to create profile: " + insertError.message);
         }
       }
 
+      console.log("Profile saved successfully");
       setSuccess(true);
+      
       setTimeout(() => {
         navigate("/login");
       }, 2500);
+      
     } catch (err: any) {
-      setError(err.message || "Registration failed");
       console.error("Registration error:", err);
+      setError(err.message || "Registration failed. Please try again.");
     } finally {
       setLoading(false);
     }
