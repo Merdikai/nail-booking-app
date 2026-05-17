@@ -44,7 +44,7 @@ export default function Register() {
     }
 
     try {
-      // 1. Sign up user with Supabase Auth
+      // 1. Sign up user with Supabase Auth (triggers auto-profile creation)
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password,
@@ -55,19 +55,38 @@ export default function Register() {
       const user = authData.user;
       if (!user) throw new Error("No user returned from auth");
 
-      // 2. Create profile with company_id
-      const { error: profileError } = await supabase.from("profiles").insert([
-        {
-          id: user.id,
+      // 2. Update the auto-created profile with additional info
+      const { error: updateError } = await supabase
+        .from("profiles")
+        .update({
           full_name: fullName,
           phone_number: phone,
-          email: email,
-          role: "user",
           company_id: selectedCompany,
-        },
-      ]);
+          role: "user",
+        })
+        .eq("id", user.id);
 
-      if (profileError) throw profileError;
+      // If update fails (maybe trigger didn't create profile), try inserting
+      if (updateError) {
+        console.log("Update failed, trying insert instead...");
+        
+        // Try direct insert as fallback
+        const { error: insertError } = await supabase.from("profiles").insert([
+          {
+            id: user.id,
+            full_name: fullName,
+            phone_number: phone,
+            email: email,
+            role: "user",
+            company_id: selectedCompany,
+          },
+        ]);
+
+        if (insertError) {
+          console.error("Both update and insert failed:", insertError);
+          throw new Error("Failed to save profile. Please try again.");
+        }
+      }
 
       setSuccess(true);
       setTimeout(() => {
