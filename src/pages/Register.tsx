@@ -23,7 +23,6 @@ export default function Register() {
 
   const navigate = useNavigate();
 
-  // Fetch companies for dropdown
   useEffect(() => {
     const fetchCompanies = async () => {
       const { data } = await supabase.from("companies").select("id, name").order("name");
@@ -44,55 +43,36 @@ export default function Register() {
     }
 
     try {
-      // 1. Sign up user with Supabase Auth (trigger creates basic profile)
+      // 1. Sign up - the trigger will auto-create the profile with email & default company
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password,
       });
 
       if (authError) throw authError;
+      if (!authData.user) throw new Error("No user returned");
 
-      const user = authData.user;
-      if (!user) throw new Error("No user returned from auth");
-
-      console.log("User created:", user.id);
+      console.log("User signed up:", authData.user.id);
 
       // 2. Wait a moment for the trigger to create the profile
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      await new Promise(resolve => setTimeout(resolve, 2000));
 
-      // 3. Update the auto-created profile with user details
+      // 3. Update the profile with the user's details
       const { error: updateError } = await supabase
         .from("profiles")
         .update({
           full_name: fullName,
           phone_number: phone,
           company_id: selectedCompany,
-          role: "user",
         })
-        .eq("id", user.id);
+        .eq("id", authData.user.id);
 
-      // 4. If update fails (trigger didn't create profile), insert directly
       if (updateError) {
-        console.log("Update failed, trying direct insert...");
-        
-        const { error: insertError } = await supabase.from("profiles").insert([
-          {
-            id: user.id,
-            full_name: fullName,
-            phone_number: phone,
-            email: email,
-            role: "user",
-            company_id: selectedCompany,
-          },
-        ]);
-
-        if (insertError) {
-          console.error("Insert failed:", insertError);
-          throw new Error("Failed to create profile: " + insertError.message);
-        }
+        console.error("Update error:", updateError);
+        throw new Error(updateError.message);
       }
 
-      console.log("Profile saved successfully");
+      console.log("Profile updated successfully");
       setSuccess(true);
       
       setTimeout(() => {
@@ -101,7 +81,7 @@ export default function Register() {
       
     } catch (err: any) {
       console.error("Registration error:", err);
-      setError(err.message || "Registration failed. Please try again.");
+      setError(err.message || "Registration failed");
     } finally {
       setLoading(false);
     }
@@ -189,7 +169,6 @@ export default function Register() {
                   </div>
                 </div>
 
-                {/* Company Selection Dropdown */}
                 <div className="mb-3">
                   <label className="form-label">Select Company *</label>
                   <select
