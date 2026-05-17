@@ -700,16 +700,17 @@
 /* RESPONSIVE - MOBILE                         */
 /* =========================================== */
 @media (max-width: 992px) {
-  .navbar-pro {
-    width: 94vw;
-    top: 0.75rem;
+ .navbar-pro {
+    width: 100%;        /* ✅ Changed to full width */
+    top: 0;
+    margin: 0;          /* ✅ Remove margin */
   }
-
+  
   .navbar-pro-inner {
-    justify-content: space-between;
-    padding: 0.5rem 0.75rem;
+    border-radius: 0;   /* ✅ Remove rounded corners on mobile */
+    padding: 0.6rem 1rem;
   }
-
+  /* ... rest stays same */
   .nav-toggle {
     display: flex;
   }
@@ -808,15 +809,15 @@
 /* RESPONSIVE - SMALL MOBILE                   */
 /* =========================================== */
 @media (max-width: 480px) {
-  .navbar-pro {
-    top: 0.4rem;
-    width: 96vw;
+   .navbar-pro {
+    width: 100%;
+    top: 0;
   }
 
   .navbar-pro-inner {
-    padding: 0.4rem 0.6rem;
+    padding: 0.5rem 0.75rem;
   }
-
+  
   .nav-logo-text {
     font-size: 0.85rem;
   }
