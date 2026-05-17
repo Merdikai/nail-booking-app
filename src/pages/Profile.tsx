@@ -18,47 +18,33 @@ export default function Profile() {
   const { profile } = useAuth();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
 
   useEffect(() => {
-  const fetchBookings = async () => {
-    // Wait for profile to be ready
-    if (!profile?.id) {
-      console.log("Profile not loaded yet");
+    if (!profile) {
+      setLoading(false);
       return;
     }
 
-    setLoading(true);
-    setError("");
+    const fetchBookings = async () => {
+      setLoading(true);
 
-    console.log("Fetching bookings for user ID:", profile.id);
+      const { data } = await supabase
+        .from("bookings")
+        .select("*")
+        .eq("user_id", profile.id)
+        .order("appointment_date", { ascending: false });
 
-    const { data, error: fetchError } = await supabase
-      .from("bookings")
-      .select("*")
-      .eq("user_id", profile.id)
-      .order("appointment_date", { ascending: false });
-
-    if (fetchError) {
-      console.error("Supabase error:", fetchError.message);
-      setError(`Failed to load bookings: ${fetchError.message}`);
-    } else {
-      console.log("Bookings received:", data);
       setBookings(data || []);
-    }
+      setLoading(false);
+    };
 
-    setLoading(false);
-  };
+    fetchBookings();
+  }, [profile]);
 
-  fetchBookings();
-}, [profile]);
-
-  // Calculate stats
   const totalBookings = bookings.length;
   const completedBookings = bookings.filter((b) => b.status === "completed").length;
   const pendingBookings = bookings.filter((b) => b.status === "pending").length;
   const confirmedBookings = bookings.filter((b) => b.status === "confirmed").length;
-  const cancelledBookings = bookings.filter((b) => b.status === "cancelled").length;
   const progressPercent = Math.min((completedBookings / 15) * 100, 100);
   const remainingForReward = Math.max(15 - completedBookings, 0);
 
@@ -97,9 +83,7 @@ export default function Profile() {
         <h2>👤 My Profile</h2>
 
         <div className="row">
-          {/* Left Column - User Info & Loyalty */}
           <div className="col-lg-4 mb-4">
-            {/* Profile Info Card */}
             <div className="profile-info-card">
               <div className="profile-avatar">
                 <span>{profile?.full_name?.charAt(0)?.toUpperCase() || "👤"}</span>
@@ -111,11 +95,9 @@ export default function Profile() {
               )}
             </div>
 
-            {/* Loyalty Card */}
             <div className="loyalty-card mt-3">
               <h5>🎁 Loyalty Program</h5>
-              
-              {/* Stats Grid */}
+
               <div className="row mb-3">
                 <div className="col-6 mb-2">
                   <div className="stat-mini-card">
@@ -143,20 +125,12 @@ export default function Profile() {
                 </div>
               </div>
 
-              {/* Progress Bar */}
               <p className="mb-2">Progress to Free Service:</p>
               <div className="loyalty-progress mb-2">
-                <div
-                  className="progress-bar"
-                  role="progressbar"
-                  style={{ width: `${progressPercent}%` }}
-                ></div>
+                <div className="progress-bar" style={{ width: `${progressPercent}%` }}></div>
               </div>
-              <p className="loyalty-info">
-                {completedBookings} / 15 completed
-              </p>
+              <p className="loyalty-info">{completedBookings} / 15 completed</p>
 
-              {/* Reward Message */}
               {completedBookings >= 15 ? (
                 <div className="loyalty-reward">
                   🎉 Congratulations! You've earned a free nail service!
@@ -169,20 +143,13 @@ export default function Profile() {
             </div>
           </div>
 
-          {/* Right Column - Bookings */}
           <div className="col-lg-8">
             <div className="bookings-card">
               <h5>📅 My Bookings</h5>
 
-              {error && (
-                <div className="alert alert-danger-custom mb-3">{error}</div>
-              )}
-
               {loading ? (
                 <div className="text-center py-5">
-                  <div className="spinner-border profile-spinner" role="status">
-                    <span className="visually-hidden">Loading...</span>
-                  </div>
+                  <div className="spinner-border profile-spinner" role="status" />
                   <p className="text-muted mt-2">Loading your bookings...</p>
                 </div>
               ) : bookings.length === 0 ? (
@@ -201,12 +168,8 @@ export default function Profile() {
                       <div className="d-flex justify-content-between align-items-start">
                         <div>
                           <h6 className="mb-1">{booking.customer_name}</h6>
-                          <p className="mb-1 small text-muted">
-                            📅 {formatDate(booking.appointment_date)}
-                          </p>
-                          <p className="mb-0 small text-muted">
-                            ⏰ {booking.appointment_time}
-                          </p>
+                          <p className="mb-1 small text-muted">📅 {formatDate(booking.appointment_date)}</p>
+                          <p className="mb-0 small text-muted">⏰ {booking.appointment_time}</p>
                         </div>
                         <span className={`badge ${getStatusClass(booking.status)}`}>
                           {getStatusEmoji(booking.status)} {booking.status}

@@ -52,7 +52,7 @@ export default function Home() {
     navigate("/designs");
   };
 
-  const handleGalleryClick = (designName?: string) => {
+  const handleGalleryClick = () => {
     navigate("/designs");
   };
 
@@ -165,7 +165,7 @@ export default function Home() {
       <section className="gallery-strip">
         <div className="gallery-track">
           {[...galleryImages, ...galleryImages].map((img, index) => (
-            <div key={index} className="gallery-item" onClick={() => handleGalleryClick()}>
+            <div key={index} className="gallery-item" onClick={handleGalleryClick}>
               <img src={img} alt={`Nail design ${index + 1}`} />
               <div className="gallery-item-overlay">
                 <span className="gallery-zoom">🔍</span>
@@ -261,10 +261,10 @@ export default function Home() {
             </div>
             <div className="footer-col">
               <h4>Company</h4>
-              <a href="#" onClick={(e) => { e.preventDefault(); navigate("/"); }}>About Us</a>
+              <a href="#" onClick={(e) => { e.preventDefault(); navigate("/about"); }}>About Us</a>
               <a href="#" onClick={(e) => { e.preventDefault(); navigate("/booking"); }}>Careers</a>
               <a href="#" onClick={(e) => { e.preventDefault(); navigate("/designs"); }}>Blog</a>
-              <a href="#" onClick={(e) => { e.preventDefault(); navigate("/"); }}>Contact</a>
+              <a href="#" onClick={(e) => { e.preventDefault(); navigate("/contact"); }}>Contact</a>
             </div>
             <div className="footer-col">
               <h4>Follow Us</h4>
