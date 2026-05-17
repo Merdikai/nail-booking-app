@@ -34,10 +34,10 @@ export default function AdminLogin() {
         .eq("id", data.user.id)
         .single();
 
-      if (profile?.role !== "admin") {
-        await supabase.auth.signOut();
-        throw new Error("Unauthorized: Not an admin account");
-      }
+      if (profile?.role !== "admin" && profile?.role !== "super_admin") {
+  await supabase.auth.signOut();
+  throw new Error("Unauthorized: Not an admin account");
+}
 
       await refreshProfile();
       navigate("/admin");
