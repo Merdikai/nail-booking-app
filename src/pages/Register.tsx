@@ -1,25 +1,47 @@
 // src/pages/Register.tsx
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import "./Register.css";
+
+type Company = {
+  id: string;
+  name: string;
+};
 
 export default function Register() {
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [selectedCompany, setSelectedCompany] = useState("");
+  const [companies, setCompanies] = useState<Company[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
 
   const navigate = useNavigate();
 
+  // Fetch companies for dropdown
+  useEffect(() => {
+    const fetchCompanies = async () => {
+      const { data } = await supabase.from("companies").select("id, name").order("name");
+      setCompanies(data || []);
+    };
+    fetchCompanies();
+  }, []);
+
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setLoading(true);
+
+    if (!selectedCompany) {
+      setError("Please select a company");
+      setLoading(false);
+      return;
+    }
 
     try {
       // 1. Sign up user with Supabase Auth
@@ -33,18 +55,17 @@ export default function Register() {
       const user = authData.user;
       if (!user) throw new Error("No user returned from auth");
 
-      // 2. Create profile in profiles table
-      const { error: profileError } = await supabase
-        .from("profiles")
-        .insert([
-          {
-            id: user.id,
-            full_name: fullName,
-            phone_number: phone,
-            email: email,
-            role: "user",
-          },
-        ]);
+      // 2. Create profile with company_id
+      const { error: profileError } = await supabase.from("profiles").insert([
+        {
+          id: user.id,
+          full_name: fullName,
+          phone_number: phone,
+          email: email,
+          role: "user",
+          company_id: selectedCompany,
+        },
+      ]);
 
       if (profileError) throw profileError;
 
@@ -75,14 +96,12 @@ export default function Register() {
             <div className="register-card">
               <h2 className="text-center mb-4">💅 Create Account</h2>
 
-              {/* Success Alert */}
               {success && (
                 <div className="alert-success-custom mb-3">
                   🎉 Account created successfully! Redirecting to login...
                 </div>
               )}
 
-              {/* Error Alert */}
               {error && (
                 <div className="alert-danger-custom mb-3">
                   ⚠️ {error}
@@ -136,12 +155,37 @@ export default function Register() {
                     minLength={6}
                   />
                   <div className={`password-hint ${isPasswordValid && password.length > 0 ? 'valid' : ''}`}>
-                    {password.length > 0 ? (
-                      isPasswordValid ? '✅ Password meets requirements' : '❌ Minimum 6 characters required'
-                    ) : (
-                      '🔒 Choose a strong password'
-                    )}
+                    {password.length > 0
+                      ? isPasswordValid
+                        ? '✅ Password meets requirements'
+                        : '❌ Minimum 6 characters required'
+                      : '🔒 Choose a strong password'}
                   </div>
+                </div>
+
+                {/* Company Selection Dropdown */}
+                <div className="mb-3">
+                  <label className="form-label">Select Company *</label>
+                  <select
+                    className="form-select"
+                    value={selectedCompany}
+                    onChange={(e) => setSelectedCompany(e.target.value)}
+                    required
+                    style={{
+                      borderRadius: "14px",
+                      border: "2px solid #f3f4f6",
+                      padding: "0.9rem 1.1rem",
+                      fontSize: "0.95rem",
+                      background: "#fafafa",
+                    }}
+                  >
+                    <option value="">Choose your company</option>
+                    {companies.map((company) => (
+                      <option key={company.id} value={company.id}>
+                        {company.name}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
                 <button

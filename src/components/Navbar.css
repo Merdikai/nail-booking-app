@@ -389,6 +389,32 @@
 }
 
 /* =========================================== */
+/* SUPER ADMIN ITEM                            */
+/* =========================================== */
+.nav-super-admin {
+  color: #6b21a8 !important;
+}
+
+.nav-super-admin:hover {
+  color: #4c1d95 !important;
+  background: rgba(107, 33, 168, 0.08) !important;
+}
+
+.nav-super-admin .nav-item-bg {
+  background: rgba(107, 33, 168, 0.06) !important;
+}
+
+.nav-super-admin.active {
+  color: #4c1d95 !important;
+  background: rgba(107, 33, 168, 0.1) !important;
+  border-color: rgba(107, 33, 168, 0.2) !important;
+}
+
+.nav-super-admin.active::after {
+  background: #6b21a8;
+}
+
+/* =========================================== */
 /* GUEST BUTTONS                               */
 /* =========================================== */
 .nav-btn {

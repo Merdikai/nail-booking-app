@@ -20,15 +20,13 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Close on outside click – FIXED CLASS NAMES
+  // Close on outside click
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
-      // Only close dropdown if click outside .nav-dropdown
       if (!target.closest(".nav-dropdown")) {
         setDropdownOpen(false);
       }
-      // Only close mobile menu if click outside .nav-menu and .nav-toggle
       if (
         !target.closest(".nav-menu") &&
         !target.closest(".nav-toggle")
@@ -120,6 +118,20 @@ export default function Navbar() {
                     <span className="nav-item-bg" />
                   </Link>
 
+                  {/* Super Admin Link */}
+                  {profile?.role === "super_admin" && (
+                    <Link
+                      to="/super-admin"
+                      className={`nav-item nav-super-admin ${isActive("/super-admin") ? "active" : ""}`}
+                      onClick={closeAll}
+                    >
+                      <span className="nav-item-icon">🛡️</span>
+                      <span className="nav-item-label">Super Admin</span>
+                      <span className="nav-item-bg" />
+                    </Link>
+                  )}
+
+                  {/* Admin Link */}
                   {profile?.role === "admin" && (
                     <Link to="/admin" className={`nav-item nav-admin-item ${isActive("/admin") ? "active" : ""}`} onClick={closeAll}>
                       <span className="nav-item-icon">⚙️</span>
@@ -162,6 +174,11 @@ export default function Navbar() {
                       {profile?.role === "admin" && (
                         <Link to="/admin" className="nav-dropdown-link" onClick={closeAll}>
                           <span>⚙️</span> Admin Dashboard
+                        </Link>
+                      )}
+                      {profile?.role === "super_admin" && (
+                        <Link to="/super-admin" className="nav-dropdown-link" onClick={closeAll}>
+                          <span>🛡️</span> Super Admin
                         </Link>
                       )}
                       <div className="nav-dropdown-divider" />

@@ -1,4 +1,3 @@
-// src/pages/Designs.tsx
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient";
@@ -14,6 +13,7 @@ type Design = {
   category: string;
   price: number;
   likes_count: number;
+  company_id: string;
 };
 
 const FALLBACK_IMAGES = [
@@ -26,7 +26,7 @@ export default function Designs() {
   const [designs, setDesigns] = useState<Design[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const navigate = useNavigate();
 
   const fetchDesigns = async () => {
@@ -34,22 +34,26 @@ export default function Designs() {
     setError("");
 
     try {
-      const { data, error } = await supabase
-        .from("designs")
-        .select("*")
-        .order("likes_count", { ascending: false });
+      let query = supabase.from("designs").select("*");
 
-      if (error) throw error;
+      // If not super admin, restrict to user's company
+      if (profile?.role !== "super_admin") {
+        query = query.eq("company_id", profile?.company_id || "");
+      }
+
+      const { data, error: fetchError } = await query.order("likes_count", { ascending: false });
+
+      if (fetchError) throw fetchError;
 
       if (data && data.length > 0) {
         setDesigns(data);
       } else {
         setDesigns([]);
-        setError("No designs found. Add some designs through the admin panel!");
+        setError("No designs available for your company.");
       }
     } catch (err: any) {
       console.error("Error fetching designs:", err);
-      setError("Failed to load designs. Please try again later.");
+      setError("Failed to load designs.");
     } finally {
       setLoading(false);
     }
@@ -57,7 +61,7 @@ export default function Designs() {
 
   useEffect(() => {
     fetchDesigns();
-  }, []);
+  }, [profile]);
 
   const handleLike = useCallback(
     async (designId: number) => {
@@ -75,18 +79,10 @@ export default function Designs() {
           .single();
 
         if (existingLike) {
-          await supabase
-            .from("design_likes")
-            .delete()
-            .eq("design_id", designId)
-            .eq("user_id", user.id);
-
+          await supabase.from("design_likes").delete().eq("design_id", designId).eq("user_id", user.id);
           await supabase.rpc("decrement_likes", { design_id_param: designId });
         } else {
-          await supabase.from("design_likes").insert([
-            { design_id: designId, user_id: user.id },
-          ]);
-
+          await supabase.from("design_likes").insert([{ design_id: designId, user_id: user.id }]);
           await supabase.rpc("increment_likes", { design_id_param: designId });
         }
 
@@ -111,15 +107,12 @@ export default function Designs() {
     return [...designs].sort((a, b) => b.likes_count - a.likes_count).slice(0, 3);
   }, [designs]);
 
-  // Loading State
   if (loading) {
     return (
       <div className="designs-page">
         <div className="container text-center py-5">
-          <div className="spinner-border designs-loading" role="status">
-            <span className="visually-hidden">Loading...</span>
-          </div>
-          <p className="mt-3 text-muted">Loading amazing designs...</p>
+          <div className="spinner-border designs-loading" role="status" />
+          <p className="mt-3 text-muted">Loading designs...</p>
         </div>
       </div>
     );
@@ -128,31 +121,25 @@ export default function Designs() {
   return (
     <div className="designs-page">
       <div className="container">
-        {/* HEADER */}
         <div className="designs-header mb-5">
           <h2>💅 Nail Designs</h2>
           <p>Browse our collection and book your favorite design</p>
         </div>
 
-        {/* Error/Warning Alert */}
         {error && (
-          <div className="designs-alert d-flex align-items-center mb-4" role="alert">
+          <div className="designs-alert d-flex align-items-center mb-4">
             <span className="me-2">⚠️</span>
             <div>{error}</div>
           </div>
         )}
 
-        {/* TRENDING SECTION */}
         {trending.length > 0 && (
           <div className="trending-section mb-5">
             <h4>🔥 Trending Now</h4>
             <div className="row">
               {trending.map((design) => (
                 <div key={design.id} className="col-md-4 mb-3">
-                  <div
-                    className="trending-card card p-3"
-                    onClick={() => handleBook(design)}
-                  >
+                  <div className="trending-card card p-3" onClick={() => handleBook(design)}>
                     <div className="d-flex align-items-center">
                       <img
                         src={design.image_url}
@@ -175,7 +162,6 @@ export default function Designs() {
           </div>
         )}
 
-        {/* ALL DESIGNS GRID */}
         {designs.length === 0 && !loading && !error ? (
           <div className="text-center py-5">
             <div className="designs-empty">🎨</div>
@@ -192,58 +178,26 @@ export default function Designs() {
                       src={design.image_url}
                       alt={design.name}
                       className="card-img-top"
-                      style={{
-                        height: "220px",
-                        objectFit: "cover",
-                      }}
+                      style={{ height: "220px", objectFit: "cover" }}
                       onError={(e) => handleImageError(e, design.id)}
                     />
-                    {design.price > 0 && (
-                      <span className="price-badge">${design.price}</span>
-                    )}
+                    {design.price > 0 && <span className="price-badge">${design.price}</span>}
                   </div>
-
                   <div className="card-body">
                     <h5>{design.name}</h5>
-
-                    {design.brand && (
-                      <p className="text-muted small mb-1">
-                        <strong>Brand:</strong> {design.brand}
-                      </p>
-                    )}
-
-                    {design.category && (
-                      <p className="text-muted small mb-2">
-                        <strong>Category:</strong> {design.category}
-                      </p>
-                    )}
-
+                    {design.brand && <p className="text-muted small mb-1"><strong>Brand:</strong> {design.brand}</p>}
+                    {design.category && <p className="text-muted small mb-2"><strong>Category:</strong> {design.category}</p>}
                     {design.description && (
                       <p className="small text-muted mb-3" style={{ lineHeight: "1.4" }}>
-                        {design.description.length > 80
-                          ? design.description.substring(0, 80) + "..."
-                          : design.description}
+                        {design.description.length > 80 ? design.description.substring(0, 80) + "..." : design.description}
                       </p>
                     )}
-
                     <div className="d-flex justify-content-between align-items-center mb-3">
                       <p className="mb-0 small">❤️ {design.likes_count} Likes</p>
                     </div>
-
                     <div className="d-flex gap-2">
-                      <button
-                        className="like-btn flex-grow-1"
-                        onClick={() => handleLike(design.id)}
-                      >
-                        ❤️ Like
-                      </button>
-
-                      <button
-                        className="book-btn flex-grow-1"
-                        onClick={() => handleBook(design)}
-                      >
-                        📅 Book Now
-                      </button>
+                      <button className="like-btn flex-grow-1" onClick={() => handleLike(design.id)}>❤️ Like</button>
+                      <button className="book-btn flex-grow-1" onClick={() => handleBook(design)}>📅 Book Now</button>
                     </div>
                   </div>
                 </div>
