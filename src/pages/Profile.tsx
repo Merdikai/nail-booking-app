@@ -18,27 +18,48 @@ export default function Profile() {
   const { profile } = useAuth();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     const fetchBookings = async () => {
-      if (!profile) return;
+      if (!profile) {
+        setLoading(false);
+        return;
+      }
 
-      const { data } = await supabase
+      setLoading(true);
+      setError("");
+
+      console.log("Fetching bookings for user:", profile.id);
+
+      const { data, error: fetchError } = await supabase
         .from("bookings")
         .select("*")
         .eq("user_id", profile.id)
         .order("appointment_date", { ascending: false });
 
-      setBookings(data || []);
+      if (fetchError) {
+        console.error("Error fetching bookings:", fetchError);
+        setError("Failed to load bookings. Please try again.");
+      } else {
+        console.log("Bookings found:", data?.length || 0);
+        setBookings(data || []);
+      }
+
       setLoading(false);
     };
 
     fetchBookings();
   }, [profile]);
 
-  const visits = bookings.length;
-  const completedVisits = bookings.filter((b) => b.status === "completed").length;
-  const progress = Math.min((completedVisits / 15) * 100, 100);
+  // Calculate stats
+  const totalBookings = bookings.length;
+  const completedBookings = bookings.filter((b) => b.status === "completed").length;
+  const pendingBookings = bookings.filter((b) => b.status === "pending").length;
+  const confirmedBookings = bookings.filter((b) => b.status === "confirmed").length;
+  const cancelledBookings = bookings.filter((b) => b.status === "cancelled").length;
+  const progressPercent = Math.min((completedBookings / 15) * 100, 100);
+  const remainingForReward = Math.max(15 - completedBookings, 0);
 
   const getStatusClass = (status: string) => {
     switch (status) {
@@ -47,6 +68,16 @@ export default function Profile() {
       case "completed": return "badge-completed";
       case "cancelled": return "badge-cancelled";
       default: return "badge-default";
+    }
+  };
+
+  const getStatusEmoji = (status: string) => {
+    switch (status) {
+      case "confirmed": return "✅";
+      case "pending": return "⏳";
+      case "completed": return "🎉";
+      case "cancelled": return "❌";
+      default: return "📋";
     }
   };
 
@@ -70,7 +101,7 @@ export default function Profile() {
             {/* Profile Info Card */}
             <div className="profile-info-card">
               <div className="profile-avatar">
-                <span>{profile?.full_name?.charAt(0) || "👤"}</span>
+                <span>{profile?.full_name?.charAt(0)?.toUpperCase() || "👤"}</span>
               </div>
               <h5 className="text-center">{profile?.full_name || "User"}</h5>
               <p className="text-center text-muted">{profile?.email}</p>
@@ -82,27 +113,56 @@ export default function Profile() {
             {/* Loyalty Card */}
             <div className="loyalty-card mt-3">
               <h5>🎁 Loyalty Program</h5>
-              <p className="mb-1">Total Bookings: <strong>{visits}</strong></p>
-              <p className="mb-2">Completed: <strong>{completedVisits} / 15</strong></p>
+              
+              {/* Stats Grid */}
+              <div className="row mb-3">
+                <div className="col-6 mb-2">
+                  <div className="stat-mini-card">
+                    <span className="stat-mini-number">{totalBookings}</span>
+                    <span className="stat-mini-label">Total</span>
+                  </div>
+                </div>
+                <div className="col-6 mb-2">
+                  <div className="stat-mini-card">
+                    <span className="stat-mini-number">{pendingBookings}</span>
+                    <span className="stat-mini-label">Pending</span>
+                  </div>
+                </div>
+                <div className="col-6">
+                  <div className="stat-mini-card">
+                    <span className="stat-mini-number">{confirmedBookings}</span>
+                    <span className="stat-mini-label">Confirmed</span>
+                  </div>
+                </div>
+                <div className="col-6">
+                  <div className="stat-mini-card">
+                    <span className="stat-mini-number">{completedBookings}</span>
+                    <span className="stat-mini-label">Completed</span>
+                  </div>
+                </div>
+              </div>
 
-              <div className="loyalty-progress mb-3">
+              {/* Progress Bar */}
+              <p className="mb-2">Progress to Free Service:</p>
+              <div className="loyalty-progress mb-2">
                 <div
                   className="progress-bar"
                   role="progressbar"
-                  style={{ width: `${progress}%` }}
-                  aria-valuenow={completedVisits}
-                  aria-valuemin={0}
-                  aria-valuemax={15}
+                  style={{ width: `${progressPercent}%` }}
                 ></div>
               </div>
+              <p className="loyalty-info">
+                {completedBookings} / 15 completed
+              </p>
 
-              {completedVisits >= 15 ? (
+              {/* Reward Message */}
+              {completedBookings >= 15 ? (
                 <div className="loyalty-reward">
                   🎉 Congratulations! You've earned a free nail service!
                 </div>
               ) : (
                 <p className="loyalty-info">
-                  {15 - completedVisits} more visits to unlock a free service
+                  {remainingForReward} more completed visits to unlock a free service 🎁
                 </p>
               )}
             </div>
@@ -112,6 +172,10 @@ export default function Profile() {
           <div className="col-lg-8">
             <div className="bookings-card">
               <h5>📅 My Bookings</h5>
+
+              {error && (
+                <div className="alert alert-danger-custom mb-3">{error}</div>
+              )}
 
               {loading ? (
                 <div className="text-center py-5">
@@ -144,11 +208,7 @@ export default function Profile() {
                           </p>
                         </div>
                         <span className={`badge ${getStatusClass(booking.status)}`}>
-                          {booking.status === "confirmed" && "✅ "}
-                          {booking.status === "pending" && "⏳ "}
-                          {booking.status === "completed" && "🎉 "}
-                          {booking.status === "cancelled" && "❌ "}
-                          {booking.status}
+                          {getStatusEmoji(booking.status)} {booking.status}
                         </span>
                       </div>
                     </div>

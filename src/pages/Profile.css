@@ -338,3 +338,41 @@
     font-size: 0.85rem;
   }
 }
+/* =========================================== */
+/* MINI STAT CARDS */
+/* =========================================== */
+.stat-mini-card {
+  background: #fdf2f8;
+  border-radius: 12px;
+  padding: 0.6rem;
+  text-align: center;
+  border: 1px solid rgba(236, 72, 153, 0.1);
+}
+
+.stat-mini-number {
+  display: block;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #ec4899;
+}
+
+.stat-mini-label {
+  display: block;
+  font-size: 0.7rem;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* =========================================== */
+/* CUSTOM DANGER ALERT */
+/* =========================================== */
+.alert-danger-custom {
+  background: linear-gradient(135deg, #fef2f2, #fee2e2);
+  color: #991b1b;
+  border: none;
+  border-radius: 12px;
+  padding: 0.9rem 1.2rem;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
