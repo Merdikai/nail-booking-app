@@ -20,37 +20,38 @@ export default function Profile() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    const fetchBookings = async () => {
-      if (!profile) {
-        setLoading(false);
-        return;
-      }
+useEffect(() => {
+  const fetchBookings = async () => {
+    // Wait for profile to be ready
+    if (!profile?.id) {
+      console.log("Profile not loaded yet");
+      return;
+    }
 
-      setLoading(true);
-      setError("");
+    setLoading(true);
+    setError("");
 
-      console.log("Fetching bookings for user:", profile.id);
+    console.log("Fetching bookings for user ID:", profile.id);
 
-      const { data, error: fetchError } = await supabase
-        .from("bookings")
-        .select("*")
-        .eq("user_id", profile.id)
-        .order("appointment_date", { ascending: false });
+    const { data, error: fetchError } = await supabase
+      .from("bookings")
+      .select("*")
+      .eq("user_id", profile.id)
+      .order("appointment_date", { ascending: false });
 
-      if (fetchError) {
-        console.error("Error fetching bookings:", fetchError);
-        setError("Failed to load bookings. Please try again.");
-      } else {
-        console.log("Bookings found:", data?.length || 0);
-        setBookings(data || []);
-      }
+    if (fetchError) {
+      console.error("Supabase error:", fetchError.message);
+      setError(`Failed to load bookings: ${fetchError.message}`);
+    } else {
+      console.log("Bookings received:", data);
+      setBookings(data || []);
+    }
 
-      setLoading(false);
-    };
+    setLoading(false);
+  };
 
-    fetchBookings();
-  }, [profile]);
+  fetchBookings();
+}, [profile]);
 
   // Calculate stats
   const totalBookings = bookings.length;
