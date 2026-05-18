@@ -21,6 +21,7 @@ export default function Login() {
     setLoading(true);
 
     try {
+      // 1. Sign in with Supabase
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -28,7 +29,26 @@ export default function Login() {
 
       if (error) throw error;
 
+      // 2. Fetch the user's profile to check role
+      const { data: profile, error: profileError } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", data.user.id)
+        .single();
+
+      if (profileError) throw profileError;
+
+      // 3. Block admins from logging in here
+      if (profile?.role === "admin" || profile?.role === "super_admin") {
+        await supabase.auth.signOut();
+        setError("Admins must use the admin login page.");
+        setLoading(false);
+        return;
+      }
+
+      // 4. Refresh user profile in context
       await refreshProfile();
+
       console.log("Login success 🎉", data);
       navigate("/");
     } catch (err: any) {
@@ -52,7 +72,6 @@ export default function Login() {
             <div className="login-card">
               <h2 className="text-center mb-4">🔐 Welcome Back</h2>
 
-              {/* Error Alert */}
               {error && (
                 <div className="alert-danger-custom mb-3">
                   ⚠️ {error}
@@ -106,13 +125,11 @@ export default function Login() {
 
               <div className="text-center">
                 <p className="mb-2">
-                  <Link to="/register">
-                    Don't have an account? Register here
-                  </Link>
+                  <Link to="/register">Don't have an account? Register here</Link>
                 </p>
-                <Link to="/admin/login" className="admin-link-text">
-                  🔒 Admin Login
-                </Link>
+                <Link to="/forgot-password" className="text-muted small">Forgot password?</Link>
+                <br />
+                <Link to="/admin/login" className="admin-link-text">🔒 Admin Login</Link>
               </div>
             </div>
           </div>
