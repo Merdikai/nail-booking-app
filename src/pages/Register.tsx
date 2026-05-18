@@ -1,7 +1,7 @@
 // src/pages/Register.tsx
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import "./Register.css";
 
@@ -20,16 +20,37 @@ export default function Register() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+  const [isCompanyLocked, setIsCompanyLocked] = useState(false);
 
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const companyParam = searchParams.get("company"); // e.g. ?company=glory-nail-salon
 
+  // Fetch companies for dropdown (only if no company is locked)
   useEffect(() => {
     const fetchCompanies = async () => {
-      const { data } = await supabase.from("companies").select("id, name").order("name");
-      setCompanies(data || []);
+      if (companyParam) {
+        // Look up the company by name or ID (use name for nicer URLs)
+        const { data } = await supabase
+          .from("companies")
+          .select("id, name")
+          .or(`name.eq.${companyParam},id.eq.${companyParam}`)
+          .single();
+
+        if (data) {
+          setCompanies([data]);
+          setSelectedCompany(data.id);
+          setIsCompanyLocked(true);
+        } else {
+          setError("Invalid company link. Please contact your nail salon.");
+        }
+      } else {
+        const { data } = await supabase.from("companies").select("id, name").order("name");
+        setCompanies(data || []);
+      }
     };
     fetchCompanies();
-  }, []);
+  }, [companyParam]);
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,27 +64,18 @@ export default function Register() {
     }
 
     try {
-      // 1. Sign up - trigger handles profile creation + email confirmation
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password,
       });
 
-      if (authError) {
-        console.error("Signup error:", authError);
-        throw authError;
-      }
+      if (authError) throw authError;
+      if (!authData.user) throw new Error("No user returned from signup");
 
-      if (!authData.user) {
-        throw new Error("No user returned from signup");
-      }
+      // Wait for the trigger to create the basic profile
+      await new Promise((resolve) => setTimeout(resolve, 2000));
 
-      console.log("User signed up successfully:", authData.user.id);
-
-      // 2. Wait for trigger to create profile
-      await new Promise(resolve => setTimeout(resolve, 2000));
-
-      // 3. Update profile with user details
+      // Update profile with user details + company
       const { error: updateError } = await supabase
         .from("profiles")
         .update({
@@ -74,36 +86,22 @@ export default function Register() {
         .eq("id", authData.user.id);
 
       if (updateError) {
-        console.error("Profile update error:", updateError);
-        
-        // If update fails, the profile might not exist - insert it
-        const { error: insertError } = await supabase
-          .from("profiles")
-          .upsert({
-            id: authData.user.id,
-            email: email,
-            full_name: fullName,
-            phone_number: phone,
-            role: "user",
-            company_id: selectedCompany,
-          });
-
-        if (insertError) {
-          console.error("Profile insert error:", insertError);
-          throw new Error("Failed to save profile: " + insertError.message);
-        }
+        // Fallback upsert
+        const { error: upsertError } = await supabase.from("profiles").upsert({
+          id: authData.user.id,
+          email,
+          full_name: fullName,
+          phone_number: phone,
+          role: "user",
+          company_id: selectedCompany,
+        });
+        if (upsertError) throw upsertError;
       }
 
-      console.log("Registration complete!");
       setSuccess(true);
-      
-      setTimeout(() => {
-        navigate("/login");
-      }, 2500);
-      
+      setTimeout(() => navigate("/login"), 2500);
     } catch (err: any) {
-      console.error("Full registration error:", err);
-      setError(err.message || "Registration failed. Please try again.");
+      setError(err.message || "Registration failed");
     } finally {
       setLoading(false);
     }
@@ -130,11 +128,7 @@ export default function Register() {
                 </div>
               )}
 
-              {error && (
-                <div className="alert-danger-custom mb-3">
-                  ⚠️ {error}
-                </div>
-              )}
+              {error && <div className="alert-danger-custom mb-3">⚠️ {error}</div>}
 
               <form onSubmit={handleRegister}>
                 <div className="mb-3">
@@ -182,44 +176,53 @@ export default function Register() {
                     required
                     minLength={6}
                   />
-                  <div className={`password-hint ${isPasswordValid && password.length > 0 ? 'valid' : ''}`}>
+                  <div className={`password-hint ${isPasswordValid && password.length > 0 ? "valid" : ""}`}>
                     {password.length > 0
                       ? isPasswordValid
-                        ? '✅ Password meets requirements'
-                        : '❌ Minimum 6 characters required'
-                      : '🔒 Choose a strong password'}
+                        ? "✅ Password meets requirements"
+                        : "❌ Minimum 6 characters required"
+                      : "🔒 Choose a strong password"}
                   </div>
                 </div>
 
+                {/* Company Selection */}
                 <div className="mb-3">
-                  <label className="form-label">Select Company *</label>
-                  <select
-                    className="form-select"
-                    value={selectedCompany}
-                    onChange={(e) => setSelectedCompany(e.target.value)}
-                    required
-                    style={{
-                      borderRadius: "14px",
-                      border: "2px solid #f3f4f6",
-                      padding: "0.9rem 1.1rem",
-                      fontSize: "0.95rem",
-                      background: "#fafafa",
-                    }}
-                  >
-                    <option value="">Choose your company</option>
-                    {companies.map((company) => (
-                      <option key={company.id} value={company.id}>
-                        {company.name}
-                      </option>
-                    ))}
-                  </select>
+                  <label className="form-label">
+                    {isCompanyLocked ? "Your Nail Salon" : "Select Company *"}
+                  </label>
+                  {isCompanyLocked ? (
+                    <input
+                      type="text"
+                      className="form-control"
+                      value={companies[0]?.name || ""}
+                      disabled
+                      style={{ background: "#f0f0f0" }}
+                    />
+                  ) : (
+                    <select
+                      className="form-select"
+                      value={selectedCompany}
+                      onChange={(e) => setSelectedCompany(e.target.value)}
+                      required
+                      style={{
+                        borderRadius: "14px",
+                        border: "2px solid #f3f4f6",
+                        padding: "0.9rem 1.1rem",
+                        fontSize: "0.95rem",
+                        background: "#fafafa",
+                      }}
+                    >
+                      <option value="">Choose your company</option>
+                      {companies.map((company) => (
+                        <option key={company.id} value={company.id}>
+                          {company.name}
+                        </option>
+                      ))}
+                    </select>
+                  )}
                 </div>
 
-                <button
-                  className="register-btn mb-3"
-                  type="submit"
-                  disabled={loading}
-                >
+                <button className="register-btn mb-3" type="submit" disabled={loading}>
                   {loading ? (
                     <>
                       <span className="spinner-border spinner-border-sm me-2" role="status"></span>
@@ -236,9 +239,7 @@ export default function Register() {
               </div>
 
               <div className="text-center">
-                <Link to="/login">
-                  Already have an account? Login here
-                </Link>
+                <Link to="/login">Already have an account? Login here</Link>
               </div>
             </div>
           </div>
