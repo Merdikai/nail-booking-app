@@ -24,27 +24,45 @@ export default function Register() {
 
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const companyParam = searchParams.get("company"); // e.g. ?company=glory-nail-salon
+  const companyParam = searchParams.get("company"); // e.g., ?company=Ezer%20NailArt
 
-  // Fetch companies for dropdown (only if no company is locked)
   useEffect(() => {
     const fetchCompanies = async () => {
       if (companyParam) {
-        // Look up the company by name or ID (use name for nicer URLs)
-        const { data } = await supabase
+        // Decode the company name from the URL (e.g., "Ezer%20NailArt" -> "Ezer NailArt")
+        const decodedCompanyName = decodeURIComponent(companyParam);
+
+        // Try to find the company by exact name
+        const { data: dataByName, error: errorByName } = await supabase
           .from("companies")
           .select("id, name")
-          .or(`name.eq.${companyParam},id.eq.${companyParam}`)
+          .eq("name", decodedCompanyName)
           .single();
 
-        if (data) {
-          setCompanies([data]);
-          setSelectedCompany(data.id);
+        if (!errorByName && dataByName) {
+          // Found by name
+          setCompanies([dataByName]);
+          setSelectedCompany(dataByName.id);
           setIsCompanyLocked(true);
         } else {
-          setError("Invalid company link. Please contact your nail salon.");
+          // If not found by name, try by ID (in case the param is a UUID)
+          const { data: dataById, error: errorById } = await supabase
+            .from("companies")
+            .select("id, name")
+            .eq("id", companyParam)
+            .single();
+
+          if (!errorById && dataById) {
+            setCompanies([dataById]);
+            setSelectedCompany(dataById.id);
+            setIsCompanyLocked(true);
+          } else {
+            // Neither name nor ID matched
+            setError("Invalid company link. Please contact your nail salon.");
+          }
         }
       } else {
+        // No company parameter – show the normal dropdown
         const { data } = await supabase.from("companies").select("id, name").order("name");
         setCompanies(data || []);
       }
@@ -75,7 +93,7 @@ export default function Register() {
       // Wait for the trigger to create the basic profile
       await new Promise((resolve) => setTimeout(resolve, 2000));
 
-      // Update profile with user details + company
+      // Update profile with user details
       const { error: updateError } = await supabase
         .from("profiles")
         .update({
@@ -86,10 +104,10 @@ export default function Register() {
         .eq("id", authData.user.id);
 
       if (updateError) {
-        // Fallback upsert
+        // Fallback: try upsert
         const { error: upsertError } = await supabase.from("profiles").upsert({
           id: authData.user.id,
-          email,
+          email: email,
           full_name: fullName,
           phone_number: phone,
           role: "user",
