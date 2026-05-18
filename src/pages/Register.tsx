@@ -43,21 +43,27 @@ export default function Register() {
     }
 
     try {
-      // 1. Sign up - the trigger will auto-create the profile with email & default company
+      // 1. Sign up - trigger handles profile creation + email confirmation
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password,
       });
 
-      if (authError) throw authError;
-      if (!authData.user) throw new Error("No user returned");
+      if (authError) {
+        console.error("Signup error:", authError);
+        throw authError;
+      }
 
-      console.log("User signed up:", authData.user.id);
+      if (!authData.user) {
+        throw new Error("No user returned from signup");
+      }
 
-      // 2. Wait a moment for the trigger to create the profile
+      console.log("User signed up successfully:", authData.user.id);
+
+      // 2. Wait for trigger to create profile
       await new Promise(resolve => setTimeout(resolve, 2000));
 
-      // 3. Update the profile with the user's details
+      // 3. Update profile with user details
       const { error: updateError } = await supabase
         .from("profiles")
         .update({
@@ -68,11 +74,27 @@ export default function Register() {
         .eq("id", authData.user.id);
 
       if (updateError) {
-        console.error("Update error:", updateError);
-        throw new Error(updateError.message);
+        console.error("Profile update error:", updateError);
+        
+        // If update fails, the profile might not exist - insert it
+        const { error: insertError } = await supabase
+          .from("profiles")
+          .upsert({
+            id: authData.user.id,
+            email: email,
+            full_name: fullName,
+            phone_number: phone,
+            role: "user",
+            company_id: selectedCompany,
+          });
+
+        if (insertError) {
+          console.error("Profile insert error:", insertError);
+          throw new Error("Failed to save profile: " + insertError.message);
+        }
       }
 
-      console.log("Profile updated successfully");
+      console.log("Registration complete!");
       setSuccess(true);
       
       setTimeout(() => {
@@ -80,8 +102,8 @@ export default function Register() {
       }, 2500);
       
     } catch (err: any) {
-      console.error("Registration error:", err);
-      setError(err.message || "Registration failed");
+      console.error("Full registration error:", err);
+      setError(err.message || "Registration failed. Please try again.");
     } finally {
       setLoading(false);
     }
