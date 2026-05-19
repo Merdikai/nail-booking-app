@@ -1,19 +1,20 @@
 // src/pages/Contact.tsx
 import { useState } from "react";
+import { useAuth } from "../context/AuthContext";
 import "./Contact.css";
 
 export default function Contact() {
-  const [form, setForm] = useState({
-    name: "",
-    email: "",
-    subject: "",
-    message: "",
-  });
+  const { profile } = useAuth();
+  const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" });
   const [submitted, setSubmitted] = useState(false);
+
+  const companyName = profile?.company_name || "Ezer NailArt";
+  const companyPhone = profile?.company_phone || "+1 (555) 123-4567";
+  const companyEmail = profile?.company_email || "hello@ezernailart.com";
+  const companyAddress = profile?.company_address || "123 Nail Art Street, Beauty District, New York, NY 10001";
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real app, you'd send this to your backend or Supabase
     console.log("Contact form submitted:", form);
     setSubmitted(true);
     setForm({ name: "", email: "", subject: "", message: "" });
@@ -26,7 +27,7 @@ export default function Contact() {
       <section className="contact-hero">
         <div className="contact-hero-content">
           <span className="contact-badge">GET IN TOUCH</span>
-          <h1>Contact Us</h1>
+          <h1>Contact {companyName}</h1>
           <p>We'd love to hear from you. Reach out and we'll get back to you shortly.</p>
         </div>
       </section>
@@ -40,29 +41,27 @@ export default function Contact() {
               <div className="info-card">
                 <div className="info-icon">📍</div>
                 <h4>Visit Us</h4>
-                <p>123 Nail Art Street<br />Beauty District<br />New York, NY 10001</p>
+                <p>{companyAddress}</p>
               </div>
 
               <div className="info-card">
                 <div className="info-icon">📞</div>
                 <h4>Call Us</h4>
-                <p>+1 (555) 123-4567<br />Mon - Sat: 9:00 AM - 7:00 PM</p>
+                <p>{companyPhone}<br />Mon - Sat: 9:00 AM - 7:00 PM</p>
               </div>
 
               <div className="info-card">
                 <div className="info-icon">✉️</div>
                 <h4>Email Us</h4>
-                <p>hello@ezernailart.com<br />support@ezernailart.com</p>
+                <p>{companyEmail}</p>
               </div>
 
               <div className="info-card">
                 <div className="info-icon">💬</div>
                 <h4>Follow Us</h4>
                 <div className="social-icons">
-                  <span>📸</span>
-                  <span>📘</span>
-                  <span>🐦</span>
-                  <span>📌</span>
+                  {profile?.company_instagram && <span>📸</span>}
+                  {profile?.company_facebook && <span>📘</span>}
                 </div>
               </div>
             </div>
@@ -141,9 +140,8 @@ export default function Contact() {
         <div className="map-placeholder">
           <div className="map-content">
             <span style={{ fontSize: "3rem" }}>📍</span>
-            <h3>Visit Our Studio</h3>
-            <p>123 Nail Art Street, Beauty District, New York</p>
-            <button className="btn-pink btn-sm">Get Directions</button>
+            <h3>Visit {companyName}</h3>
+            <p>{companyAddress}</p>
           </div>
         </div>
       </section>

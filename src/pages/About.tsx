@@ -1,9 +1,16 @@
 // src/pages/About.tsx
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import "./About.css";
 
 export default function About() {
   const navigate = useNavigate();
+  const { profile } = useAuth();
+
+  const companyName = profile?.company_name || "Ezer NailArt";
+  const aboutText = profile?.company_about || "We believe every nail is a canvas waiting to be transformed into a masterpiece. Since 2019, we've been creating stunning nail designs that empower our clients to express their unique style.";
+  const missionText = profile?.company_mission || "To provide exceptional nail care services using premium products and innovative techniques, ensuring every client feels beautiful and confident.";
+  const visionText = profile?.company_vision || "To become the most trusted and innovative nail studio, setting new standards in nail artistry and customer experience across the region.";
 
   const teamMembers = [
     {
@@ -33,7 +40,7 @@ export default function About() {
   ];
 
   const milestones = [
-    { year: "2019", title: "Founded", description: "Ezer NailArt opened its first studio." },
+    { year: "2019", title: "Founded", description: `${companyName} opened its first studio.` },
     { year: "2020", title: "1000+ Clients", description: "Reached our first major milestone." },
     { year: "2022", title: "Award Winning", description: "Best Nail Studio in the region." },
     { year: "2024", title: "Online Booking", description: "Launched digital booking platform." },
@@ -46,12 +53,8 @@ export default function About() {
       <section className="about-hero">
         <div className="about-hero-content">
           <span className="about-badge">OUR STORY</span>
-          <h1>About Ezer NailArt</h1>
-          <p>
-            We believe every nail is a canvas waiting to be transformed into a masterpiece.
-            Since 2019, we've been creating stunning nail designs that empower our clients
-            to express their unique style.
-          </p>
+          <h1>About {companyName}</h1>
+          <p>{aboutText}</p>
         </div>
       </section>
 
@@ -62,27 +65,17 @@ export default function About() {
             <div className="mission-card">
               <div className="mission-icon">🎯</div>
               <h3>Our Mission</h3>
-              <p>
-                To provide exceptional nail care services using premium products
-                and innovative techniques, ensuring every client feels beautiful
-                and confident.
-              </p>
+              <p>{missionText}</p>
             </div>
             <div className="mission-card">
               <div className="mission-icon">👁️</div>
               <h3>Our Vision</h3>
-              <p>
-                To become the most trusted and innovative nail studio, setting
-                new standards in nail artistry and customer experience across the region.
-              </p>
+              <p>{visionText}</p>
             </div>
             <div className="mission-card">
               <div className="mission-icon">💖</div>
               <h3>Our Values</h3>
-              <p>
-                Quality craftsmanship, creativity without limits, exceptional hygiene
-                standards, and personalized care for every single client.
-              </p>
+              <p>Quality craftsmanship, creativity without limits, exceptional hygiene standards, and personalized care for every single client.</p>
             </div>
           </div>
         </div>

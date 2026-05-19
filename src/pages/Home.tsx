@@ -5,7 +5,7 @@ import './Home.css';
 
 export default function Home() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
 
   const features = [
     {
@@ -56,6 +56,11 @@ export default function Home() {
     navigate("/designs");
   };
 
+  // Company-specific content
+  const companyName = profile?.company_name || "Ezer NailArt";
+  const heroTitle = profile?.company_hero_title || "Where Beauty Meets Professional Art";
+  const heroSubtitle = profile?.company_hero_subtitle || "Transform your nails into stunning masterpieces. Our expert artists create breathtaking designs that reflect your unique style and personality.";
+
   return (
     <div className="home-container">
       {/* Animated Background */}
@@ -73,17 +78,19 @@ export default function Home() {
             <div className="hero-left">
               <div className="hero-badge">
                 <span className="badge-dot"></span>
-                <span>✨ Premium Nail Studio 2026</span>
+                <span>✨ {companyName}</span>
               </div>
 
               <h1 className="hero-title">
-                Where <span className="title-highlight">Beauty</span> Meets
-                <br />Professional <span className="title-highlight">Art</span>
+                {heroTitle.includes("Beauty") ? (
+                  <>Where <span className="title-highlight">Beauty</span> Meets<br />Professional <span className="title-highlight">Art</span></>
+                ) : (
+                  heroTitle
+                )}
               </h1>
 
               <p className="hero-description">
-                Transform your nails into stunning masterpieces. Our expert artists create 
-                breathtaking designs that reflect your unique style and personality.
+                {heroSubtitle}
               </p>
 
               <div className="stats-container">
@@ -248,7 +255,7 @@ export default function Home() {
       <footer className="footer">
         <div className="footer-content">
           <div className="footer-brand">
-            <span className="footer-logo">💅 Ezer NailArt</span>
+            <span className="footer-logo">💅 {companyName}</span>
             <p className="footer-tagline">Making the world beautiful, one nail at a time.</p>
           </div>
           <div className="footer-links">
@@ -269,16 +276,24 @@ export default function Home() {
             <div className="footer-col">
               <h4>Follow Us</h4>
               <div className="social-links">
-                <a href="#" className="social-link" onClick={(e) => e.preventDefault()}>📸</a>
-                <a href="#" className="social-link" onClick={(e) => e.preventDefault()}>📘</a>
-                <a href="#" className="social-link" onClick={(e) => e.preventDefault()}>🐦</a>
-                <a href="#" className="social-link" onClick={(e) => e.preventDefault()}>📌</a>
+                {profile?.company_instagram && (
+                  <a href={profile.company_instagram} className="social-link" target="_blank" rel="noopener noreferrer">📸</a>
+                )}
+                {profile?.company_facebook && (
+                  <a href={profile.company_facebook} className="social-link" target="_blank" rel="noopener noreferrer">📘</a>
+                )}
+                {!profile?.company_instagram && !profile?.company_facebook && (
+                  <>
+                    <a href="#" className="social-link" onClick={(e) => e.preventDefault()}>📸</a>
+                    <a href="#" className="social-link" onClick={(e) => e.preventDefault()}>📘</a>
+                  </>
+                )}
               </div>
             </div>
           </div>
         </div>
         <div className="footer-bottom">
-          <p>&copy; 2026 Ezer NailArt. All rights reserved.</p>
+          <p>&copy; 2026 {companyName}. All rights reserved.</p>
         </div>
       </footer>
     </div>

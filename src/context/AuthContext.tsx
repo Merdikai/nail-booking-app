@@ -1,3 +1,4 @@
+// src/context/AuthContext.tsx
 import { createContext, useContext, useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import { supabase } from "../supabaseClient";
@@ -11,6 +12,18 @@ export type UserProfile = {
   role: "super_admin" | "admin" | "user";
   company_id: string | null;
   company_name?: string;
+  company_logo?: string;
+  company_hero_title?: string;
+  company_hero_subtitle?: string;
+  company_about?: string;
+  company_mission?: string;
+  company_vision?: string;
+  company_phone?: string;
+  company_address?: string;
+  company_email?: string;
+  company_website?: string;
+  company_instagram?: string;
+  company_facebook?: string;
 };
 
 type AuthContextType = {
@@ -32,7 +45,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const { data, error } = await supabase
         .from("profiles")
-        .select("*, companies(name)")
+        .select("*, companies(*)")
         .eq("id", userId)
         .single();
 
@@ -50,6 +63,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           role: data.role,
           company_id: data.company_id,
           company_name: data.companies?.name,
+          company_logo: data.companies?.logo_url,
+          company_hero_title: data.companies?.hero_title,
+          company_hero_subtitle: data.companies?.hero_subtitle,
+          company_about: data.companies?.about_text,
+          company_mission: data.companies?.mission_text,
+          company_vision: data.companies?.vision_text,
+          company_phone: data.companies?.phone,
+          company_address: data.companies?.address,
+          company_email: data.companies?.email,
+          company_website: data.companies?.website,
+          company_instagram: data.companies?.instagram,
+          company_facebook: data.companies?.facebook,
         });
       }
     } catch (err) {
