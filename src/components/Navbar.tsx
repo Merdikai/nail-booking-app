@@ -130,6 +130,9 @@ export default function Navbar() {
                       <span className="nav-item-bg" />
                     </Link>
                   )}
+                  <Link to="/company-settings" className="nav-item">
+                     🏢 Company Settings
+                     </Link>
 
                   {/* Admin Link */}
                   {profile?.role === "admin" && (

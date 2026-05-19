@@ -16,6 +16,7 @@ import ResetPassword from "./pages/ResetPassword";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import SuperAdmin from "./pages/SuperAdmin";
+import CompanySettings from "./pages/CompanySettings";
 
 function ProtectedRoute({
   children,
@@ -86,6 +87,7 @@ function App() {
 
         {/* Super Admin only */}
         <Route path="/super-admin" element={<ProtectedRoute superAdminOnly><SuperAdmin /></ProtectedRoute>} />
+        <Route path="/company-settings" element={<ProtectedRoute adminOnly><CompanySettings /></ProtectedRoute>} />
       </Routes>
     </Layout>
   );
