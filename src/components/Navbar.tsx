@@ -13,24 +13,19 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const navRef = useRef<HTMLDivElement>(null);
 
-  // Track scroll
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Close on outside click
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
       if (!target.closest(".nav-dropdown")) {
         setDropdownOpen(false);
       }
-      if (
-        !target.closest(".nav-menu") &&
-        !target.closest(".nav-toggle")
-      ) {
+      if (!target.closest(".nav-menu") && !target.closest(".nav-toggle")) {
         setIsOpen(false);
       }
     };
@@ -38,7 +33,6 @@ export default function Navbar() {
     return () => document.removeEventListener("click", handleClickOutside);
   }, []);
 
-  // Lock body scroll when mobile menu is open
   useEffect(() => {
     document.body.style.overflow = isOpen ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
@@ -58,25 +52,23 @@ export default function Navbar() {
     setDropdownOpen(false);
   };
 
+  const companyName = profile?.company_name || "Ezer NailArt";
+
   return (
     <>
-      {/* Aurora background glow behind navbar */}
       <div className={`nav-aurora ${scrolled ? "visible" : ""}`} />
 
       <nav className={`navbar-pro ${scrolled ? "scrolled" : ""}`} ref={navRef}>
         <div className="navbar-pro-inner">
           
-          {/* Logo */}
+          {/* Logo - Shows company name */}
           <Link to="/" className="nav-logo" onClick={closeAll}>
             <div className="nav-logo-ring">
               <span className="nav-logo-emoji">💅</span>
             </div>
-            <span className="nav-logo-text">
-              Ezer <span className="nav-logo-accent">NailArt</span>
-            </span>
+            <span className="nav-logo-text">{companyName}</span>
           </Link>
 
-          {/* Mobile Toggle */}
           <button
             className={`nav-toggle ${isOpen ? "open" : ""}`}
             onClick={() => setIsOpen(!isOpen)}
@@ -88,7 +80,6 @@ export default function Navbar() {
             <span className="nav-toggle-line" />
           </button>
 
-          {/* Navigation Links */}
           <div className={`nav-menu ${isOpen ? "open" : ""}`}>
             <div className="nav-menu-inner">
               {user ? (
@@ -118,21 +109,23 @@ export default function Navbar() {
                     <span className="nav-item-bg" />
                   </Link>
 
+                  {/* Company Settings - only for admin/super_admin */}
+                  {(profile?.role === "admin" || profile?.role === "super_admin") && (
+                    <Link to="/company-settings" className={`nav-item ${isActive("/company-settings") ? "active" : ""}`} onClick={closeAll}>
+                      <span className="nav-item-icon">🏢</span>
+                      <span className="nav-item-label">Settings</span>
+                      <span className="nav-item-bg" />
+                    </Link>
+                  )}
+
                   {/* Super Admin Link */}
                   {profile?.role === "super_admin" && (
-                    <Link
-                      to="/super-admin"
-                      className={`nav-item nav-super-admin ${isActive("/super-admin") ? "active" : ""}`}
-                      onClick={closeAll}
-                    >
+                    <Link to="/super-admin" className={`nav-item nav-super-admin ${isActive("/super-admin") ? "active" : ""}`} onClick={closeAll}>
                       <span className="nav-item-icon">🛡️</span>
                       <span className="nav-item-label">Super Admin</span>
                       <span className="nav-item-bg" />
                     </Link>
                   )}
-                  <Link to="/company-settings" className="nav-item">
-                     🏢 Company Settings
-                     </Link>
 
                   {/* Admin Link */}
                   {profile?.role === "admin" && (
@@ -209,7 +202,6 @@ export default function Navbar() {
             </div>
           </div>
 
-          {/* Mobile overlay */}
           {isOpen && <div className="nav-overlay" onClick={closeAll} />}
         </div>
       </nav>

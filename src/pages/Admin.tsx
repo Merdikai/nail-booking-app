@@ -1,3 +1,4 @@
+// src/pages/Admin.tsx
 import { useState, useEffect, useRef, useMemo } from "react";
 import { useAuth } from "../context/AuthContext";
 import { supabase } from "../supabaseClient";
@@ -129,7 +130,7 @@ export default function Admin() {
         name: designName, image_url: imageUrl, description: designDescription || null,
         brand: designBrand, category: designCategory, price: parseFloat(designPrice) || 0,
         created_by: profile?.id,
-        company_id: profile?.company_id // company scoping
+        company_id: profile?.company_id
       }]);
       if (error) throw error;
       setUploadSuccess("Design added!");
@@ -184,6 +185,8 @@ export default function Admin() {
 
   const formatDate = (dateStr: string) => new Date(dateStr).toLocaleDateString("en-US", { weekday: "short", year: "numeric", month: "short", day: "numeric" });
 
+  const companyName = profile?.company_name || "Admin";
+
   const BookingCard = ({ booking }: { booking: Booking }) => (
     <div className="col-12 mb-3">
       <div className={`admin-booking-card card shadow-sm ${getBorderClass(booking.status)}`}>
@@ -235,7 +238,7 @@ export default function Admin() {
             <div className="admin-header">
               <div>
                 <h1>🧑‍💼 Admin Dashboard</h1>
-                <p className="text-muted">Welcome back, {profile?.full_name}</p>
+                <p className="text-muted">Welcome back, {profile?.full_name} — {companyName}</p>
               </div>
               <div className="admin-mode-badge">⚡ Admin Mode</div>
             </div>
